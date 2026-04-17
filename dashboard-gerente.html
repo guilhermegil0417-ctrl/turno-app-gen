@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Gerente - Turno</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-clock logo-icon"></i>
+                <h2>Turno</h2>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-name" id="userName"></div>
+                <div class="user-role">
+                    <span class="badge badge-manager">Gerente</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-page="resumo">
+                    <i class="fas fa-home"></i>
+                    <span>Resumo</span>
+                </a>
+                <a href="#" class="nav-item" data-page="turnos">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Turnos</span>
+                </a>
+                <a href="#" class="nav-item" data-page="criar-turno">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Criar Turno</span>
+                </a>
+                <a href="#" class="nav-item" data-page="trocas">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Pedidos de Troca</span>
+                    <span class="nav-badge" id="trocasBadge" style="display: none;">0</span>
+                </a>
+                <a href="#" class="nav-item" data-page="funcionarios">
+                    <i class="fas fa-users"></i>
+                    <span>Funcionários</span>
+                </a>
+                <a href="#" class="nav-item" data-page="relatorios">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Relatórios</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="btn-secondary btn-block" onclick="Auth.logout()">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title" id="pageTitle">Resumo</h1>
+                <div class="top-actions">
+                    <button class="notifications-btn" onclick="Notifications.toggle()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- Resumo Page -->
+                <div id="page-resumo" class="page-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Turnos Esta Semana</span>
+                                <div class="stat-icon blue">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statTurnosSemanais">0</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Pedidos Pendentes</span>
+                                <div class="stat-icon yellow">
+                                    <i class="fas fa-hourglass-half"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statPedidosPendentes">0</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Funcionários Ativos</span>
+                                <div class="stat-icon green">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statFuncionarios">0</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Faltas Este Mês</span>
+                                <div class="stat-icon red">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statFaltas">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-calendar-week"></i> Turnos Próximos
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table id="proximosTurnosTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Funcionário</th>
+                                            <th>Horário</th>
+                                            <th>Tipo</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="proximosTurnosBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center">Carregando...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Turnos Page -->
+                <div id="page-turnos" class="page-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-calendar"></i> Calendário de Turnos
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="calendar-header">
+                                <div class="calendar-nav">
+                                    <button class="btn-secondary btn-small" onclick="Calendar.previousWeek()">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <div class="calendar-month" id="calendarMonth"></div>
+                                    <button class="btn-secondary btn-small" onclick="Calendar.nextWeek()">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <button class="btn-primary btn-small" onclick="showPage('criar-turno')">
+                                    <i class="fas fa-plus"></i> Criar Turno
+                                </button>
+                            </div>
+                            <div id="calendarView"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Criar Turno Page -->
+                <div id="page-criar-turno" class="page-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-plus-circle"></i> Criar Novo Turno
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="criarTurnoForm">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label for="turnoFuncionario">
+                                            <i class="fas fa-user"></i> Funcionário
+                                        </label>
+                                        <select id="turnoFuncionario" required></select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="turnoData">
+                                            <i class="fas fa-calendar"></i> Data
+                                        </label>
+                                        <input type="date" id="turnoData" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="turnoHoraInicio">
+                                            <i class="fas fa-clock"></i> Hora Início
+                                        </label>
+                                        <input type="time" id="turnoHoraInicio" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="turnoHoraFim">
+                                            <i class="fas fa-clock"></i> Hora Fim
+                                        </label>
+                                        <input type="time" id="turnoHoraFim" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="turnoTipo">
+                                            <i class="fas fa-sun"></i> Tipo
+                                        </label>
+                                        <select id="turnoTipo" required>
+                                            <option value="manha">Manhã</option>
+                                            <option value="tarde">Tarde</option>
+                                            <option value="noite">Noite</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group form-group-full">
+                                        <label for="turnoObservacoes">
+                                            <i class="fas fa-comment"></i> Observações (opcional)
+                                        </label>
+                                        <textarea id="turnoObservacoes" placeholder="Adicione observações sobre este turno..."></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                    <button type="button" class="btn-secondary" onclick="document.getElementById('criarTurnoForm').reset()">
+                                        <i class="fas fa-times"></i> Limpar
+                                    </button>
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-check"></i> Criar Turno
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Criação Rápida Semanal -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-calendar-week"></i> Criação Rápida Semanal
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <p style="margin-bottom: 16px; color: var(--gray-600);">
+                                Crie turnos para toda a semana de uma só vez. Selecione os dias e funcionários.
+                            </p>
+                            <form id="criarSemanaTurnosForm">
+                                <div class="form-grid">
+                                    <div class="form-group form-group-full">
+                                        <label><i class="fas fa-calendar-week"></i> Semana Inicial</label>
+                                        <input type="date" id="semanaInicio" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn-success">
+                                    <i class="fas fa-magic"></i> Criar Turnos da Semana
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trocas Page -->
+                <div id="page-trocas" class="page-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-exchange-alt"></i> Pedidos de Troca de Turno
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Solicitante</th>
+                                            <th>Substituto</th>
+                                            <th>Turno</th>
+                                            <th>Motivo</th>
+                                            <th>Data</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="trocasBody">
+                                        <tr>
+                                            <td colspan="7" class="text-center">Carregando...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Funcionários Page -->
+                <div id="page-funcionarios" class="page-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-users"></i> Funcionários
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Email</th>
+                                            <th>Telefone</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="funcionariosBody">
+                                        <tr>
+                                            <td colspan="4" class="text-center">Carregando...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Relatórios Page -->
+                <div id="page-relatorios" class="page-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-chart-bar"></i> Relatórios
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Período</label>
+                                    <select id="relatorioPeriodo">
+                                        <option value="semana">Esta Semana</option>
+                                        <option value="mes">Este Mês</option>
+                                        <option value="trimestre">Últimos 3 Meses</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Funcionário</label>
+                                    <select id="relatorioFuncionario">
+                                        <option value="">Todos</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="stats-grid mt-3">
+                                <div class="stat-card">
+                                    <div class="stat-label">Total de Horas</div>
+                                    <div class="stat-value" id="relatorioTotalHoras">0h</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">Turnos Concluídos</div>
+                                    <div class="stat-value" id="relatorioTurnosConcluidos">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">Faltas</div>
+                                    <div class="stat-value" id="relatorioFaltas">0</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-label">Atrasos</div>
+                                    <div class="stat-value" id="relatorioAtrasos">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal de Notificações -->
+    <div id="notificationsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Notificações</h3>
+                <button class="modal-close" onclick="Notifications.toggle()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="notificationsBody" style="padding: 0; max-height: 500px; overflow-y: auto;">
+                <!-- Notificações serão carregadas aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/calendar.js"></script>
+    <script src="js/dashboard-gerente.js"></script>
+</body>
+</html>

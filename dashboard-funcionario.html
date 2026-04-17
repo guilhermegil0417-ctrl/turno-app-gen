@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Funcionário - Turno</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <i class="fas fa-clock logo-icon"></i>
+                <h2>Turno</h2>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-name" id="userName"></div>
+                <div class="user-role">
+                    <span class="badge badge-employee">Funcionário</span>
+                </div>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active" data-page="meus-turnos">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Meus Turnos</span>
+                </a>
+                <a href="#" class="nav-item" data-page="solicitar-troca">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Solicitar Troca</span>
+                </a>
+                <a href="#" class="nav-item" data-page="historico">
+                    <i class="fas fa-history"></i>
+                    <span>Histórico</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button class="btn-secondary btn-block" onclick="Auth.logout()">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 class="page-title" id="pageTitle">Meus Turnos</h1>
+                <div class="top-actions">
+                    <button class="notifications-btn" onclick="Notifications.toggle()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="content-area">
+                <!-- Meus Turnos Page -->
+                <div id="page-meus-turnos" class="page-content">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Próximo Turno</span>
+                                <div class="stat-icon blue">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statProximoTurno" style="font-size: 20px;">-</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Turnos Esta Semana</span>
+                                <div class="stat-icon green">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statTurnosSemanais">0</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Horas Este Mês</span>
+                                <div class="stat-icon yellow">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statHorasMes">0h</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-label">Trocas Pendentes</span>
+                                <div class="stat-icon red">
+                                    <i class="fas fa-hourglass-half"></i>
+                                </div>
+                            </div>
+                            <div class="stat-value" id="statTrocasPendentes">0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-calendar-week"></i> Meu Calendário Semanal
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="calendar-header">
+                                <div class="calendar-nav">
+                                    <button class="btn-secondary btn-small" onclick="CalendarFunc.previousWeek()">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <div class="calendar-month" id="calendarMonth"></div>
+                                    <button class="btn-secondary btn-small" onclick="CalendarFunc.nextWeek()">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="calendarView"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-list"></i> Próximos Turnos
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Horário</th>
+                                            <th>Tipo</th>
+                                            <th>Status</th>
+                                            <th>Observações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="proximosTurnosBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center">Carregando...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Solicitar Troca Page -->
+                <div id="page-solicitar-troca" class="page-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-exchange-alt"></i> Solicitar Troca de Turno
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <p style="margin-bottom: 24px; color: var(--gray-600);">
+                                Selecione o turno que deseja trocar e escolha um colega para substituí-lo. O gerente precisará aprovar a solicitação.
+                            </p>
+                            
+                            <form id="solicitarTrocaForm">
+                                <div class="form-grid">
+                                    <div class="form-group form-group-full">
+                                        <label for="trocaTurno">
+                                            <i class="fas fa-calendar"></i> Selecionar Meu Turno
+                                        </label>
+                                        <select id="trocaTurno" required>
+                                            <option value="">Carregando...</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group form-group-full">
+                                        <label for="trocaSubstituto">
+                                            <i class="fas fa-user"></i> Selecionar Substituto
+                                        </label>
+                                        <select id="trocaSubstituto" required>
+                                            <option value="">Selecione um colega</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group form-group-full">
+                                        <label for="trocaMotivo">
+                                            <i class="fas fa-comment"></i> Motivo da Troca
+                                        </label>
+                                        <textarea id="trocaMotivo" placeholder="Explique o motivo da solicitação..." required></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                                    <button type="button" class="btn-secondary" onclick="document.getElementById('solicitarTrocaForm').reset()">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                    <button type="submit" class="btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Enviar Solicitação
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-list-alt"></i> Minhas Solicitações
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Turno</th>
+                                            <th>Substituto</th>
+                                            <th>Motivo</th>
+                                            <th>Data Solicitação</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="minhasTrocasBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center">Carregando...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Histórico Page -->
+                <div id="page-historico" class="page-content hidden">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">
+                                <i class="fas fa-history"></i> Histórico de Turnos
+                            </h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-grid mb-3">
+                                <div class="form-group">
+                                    <label>Período</label>
+                                    <select id="historicoPeriodo">
+                                        <option value="mes">Este Mês</option>
+                                        <option value="trimestre">Últimos 3 Meses</option>
+                                        <option value="ano">Este Ano</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Horário</th>
+                                            <th>Tipo</th>
+                                            <th>Horas Trabalhadas</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historicoBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center">Carregando...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal de Notificações -->
+    <div id="notificationsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Notificações</h3>
+                <button class="modal-close" onclick="Notifications.toggle()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="notificationsBody" style="padding: 0; max-height: 500px; overflow-y: auto;">
+                <!-- Notificações serão carregadas aqui -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/dashboard-funcionario.js"></script>
+</body>
+</html>
